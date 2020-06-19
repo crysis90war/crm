@@ -5,4 +5,8 @@ urlpatterns = [
     path('', views.home, name='accounts-dashboard'),
     path('products/', views.products, name='accounts-products'),
     path('customer/<str:pk_test>', views.customer, name='accounts-customer'),
+
+    path('create_order/', views.createOrder, name='accounts-create-order'),
+    path('update_order/<str:pk>', views.updateOrder, name='accounts-update-order'),
+    path('delete_order/<str:pk>', views.deleteOrder, name='accounts-delete-order')
 ]
