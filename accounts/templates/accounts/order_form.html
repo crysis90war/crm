@@ -6,10 +6,15 @@
     <div class="content-section">
         <form action="" method="POST">
             {% csrf_token %}
+            {{ formset.management_form }}
             <fieldset class="form-group">
-
+            {% for form in formset %}
+                {{ form }}
+                <hr>
+            {% endfor %}
             </fieldset>
-            {{ form|crispy }}
+
+
             <div class="form-group">
                 <button class="btn btn-outline-info" type="submit">Post</button>
             </div>
