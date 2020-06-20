@@ -1,19 +1,17 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.forms import inlineformset_factory
 from django.contrib import messages
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-
-# Create your views here.
-from accounts.forms import *
-from .models import *
-from .forms import OrderForm, CreateUserForm, ConnectionUserForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
+from django.forms import inlineformset_factory
+from django.shortcuts import render, redirect
+from .decorators import unauthenticated_user, allowed_user, admin_only
 from .filters import OrderFilter
+from .forms import OrderForm, CreateUserForm, ConnectionUserForm
+from .models import *
 
 
-@login_required
+@login_required(login_url='login')
+@admin_only
 def home(request):
     context = {
         'title': 'Dashboard',
@@ -100,44 +98,48 @@ def deleteOrder(request, pk):
     return render(request, 'accounts/delete.html', context)
 
 
+@unauthenticated_user
 def registerUser(request):
-    if request.user.is_authenticated:
-        return redirect('accounts-dashboard')
-    else:
-        form = CreateUserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Your account has been created! You can now able to log in')
-            return redirect('login')
+    form = CreateUserForm(request.POST)
+    if form.is_valid():
+        user = form.save()
+        username = form.cleaned_data.get('username')
+        group = Group.objects.get(name='customer')
+        user.groups.add(group)
+        messages.success(request, f'Account was created for ' + username)
+        return redirect('login')
 
-        context = {
-            'form': form
-        }
+    context = {
+        'form': form
+    }
 
-        return render(request, 'accounts/register.html', context)
+    return render(request, 'accounts/register.html', context)
 
 
+@unauthenticated_user
 def loginUser(request):
-    if request.user.is_authenticated:
-        return redirect('accounts-dashboard')
-    else:
-        form = ConnectionUserForm(request.POST)
+    form = ConnectionUserForm(request.POST)
 
-        if request.method == 'POST':
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('accounts-dashboard')
-            else:
-                messages.info(request, 'Username or Password Incorrect !')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('accounts-dashboard')
+        else:
+            messages.info(request, 'Username or Password Incorrect !')
 
-        context = {'form': form}
+    context = {'form': form}
 
-        return render(request, 'accounts/login.html', context)
+    return render(request, 'accounts/login.html', context)
 
 
 def logoutUser(request):
     logout(request)
     return redirect('login')
+
+
+def userPage(request):
+    context = {}
+    return render(request, 'accounts/user.html', context)

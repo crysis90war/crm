@@ -7,8 +7,10 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-item nav-link {% if title == 'Dashboard' %}active{% endif %}" href="{% url 'accounts-dashboard' %}">Dashboard</a>
-                <a class="nav-item nav-link {% if title == 'Products' %}active{% endif %}" href="{% url 'accounts-products' %}">Products</a>
+                {% if request.user.is_staff %}
+                    <a class="nav-item nav-link {% if title == 'Dashboard' %}active{% endif %}" href="{% url 'accounts-dashboard' %}">Dashboard</a>
+                    <a class="nav-item nav-link {% if title == 'Products' %}active{% endif %}" href="{% url 'accounts-products' %}">Products</a>
+                {% endif %}
             </div>
         </div>
 
