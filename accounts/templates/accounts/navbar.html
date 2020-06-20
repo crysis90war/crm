@@ -11,5 +11,18 @@
                 <a class="nav-item nav-link {% if title == 'Products' %}active{% endif %}" href="{% url 'accounts-products' %}">Products</a>
             </div>
         </div>
+
+        <div class="navbar-nav">
+            {% if user.is_authenticated %}
+                <p class="nav-item nav-link">Hello, {{ user.username }}</p>
+                {%  if user.is_staff %}
+                    <a class="nav-item nav-link" href="admin/">Admin</a>
+                {% endif %}
+                <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+            {%  else %}
+                <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
     </nav>
 </header>
