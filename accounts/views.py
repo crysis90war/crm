@@ -4,9 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.forms import inlineformset_factory
 from django.shortcuts import render, redirect
-from .decorators import unauthenticated_user, allowed_user, admin_only
+from .decorators import unauthenticated_user, allowed_users, admin_only
 from .filters import OrderFilter
-from .forms import OrderForm, CreateUserForm, ConnectionUserForm
+from .forms import OrderForm, CreateUserForm, ConnectionUserForm, CustomerForm
 from .models import *
 
 
@@ -142,7 +142,7 @@ def logoutUser(request):
 
 
 @login_required(login_url='login')
-@allowed_user(allowed_roles=['customer'])
+@allowed_users(allowed_roles=['customer'])
 def userPage(request):
     orders = request.user.customer.order_set.all()
     total_orders = orders.filter().count()
@@ -152,3 +152,18 @@ def userPage(request):
     context = {'orders': orders, 'total_orders': total_orders, 'pending': pending, 'delivered': delivered}
 
     return render(request, 'accounts/user.html', context)
+
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles='customer')
+def accountSettings(request):
+    customer = request.user.customer
+    form = CustomerForm(instance=customer)
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, request.FILES, instance=customer)
+        if form.is_valid():
+            form.save()
+
+    context = {'form': form}
+    return render(request, 'accounts/account_settings.html', context)

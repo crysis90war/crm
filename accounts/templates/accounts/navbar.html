@@ -19,6 +19,8 @@
                 <p class="nav-item nav-link">Hello, {{ user.username }}</p>
                 {%  if user.is_staff %}
                     <a class="nav-item nav-link" href="admin/">Admin</a>
+                {% else %}
+                    <a class="nav-item nav-link" href="{% url 'accounts-account' %}">Settings</a>
                 {% endif %}
                 <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
             {%  else %}

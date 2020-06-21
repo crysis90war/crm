@@ -6,6 +6,8 @@ from . import views
 urlpatterns = [
     path('', views.home, name='accounts-dashboard'),
     path('user/', views.userPage, name='accounts-user-pages'),
+    path('account/', views.accountSettings, name='accounts-account'),
+
     path('products/', views.products, name='accounts-products'),
     path('customer/<str:pk_test>', views.customer, name='accounts-customer'),
 
